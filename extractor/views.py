@@ -4,6 +4,8 @@ from rest_framework import status
 
 from .services.parser import parse_vtt
 from .services.youtube import extract_subtitle
+from .services.normalizer import normalize_lyrics
+from .services.lrc import generate_lrc
 
 
 @api_view(["POST"])
@@ -39,6 +41,14 @@ def extract_lyrics(request):
             result["content"]
         )
 
+        lyrics = normalize_lyrics(
+            lyrics
+        )
+
+        lrc = generate_lrc(
+            lyrics
+        )
+
         print("STEP 4 - parser success")
 
         return Response({
@@ -47,6 +57,7 @@ def extract_lyrics(request):
             "source": result["source"],
             "language": "en",
             "lyrics": lyrics,
+            "lrc": lrc,
         })
 
     except Exception as e:
