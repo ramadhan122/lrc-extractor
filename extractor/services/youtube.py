@@ -3,6 +3,27 @@ import tempfile
 
 import yt_dlp
 
+def get_manual_subtitles(url):
+    options = {
+        "skip_download": True,
+        "quiet": True,
+        "no_warnings": True,
+    }
+
+    print("YT-DLP: mulai ambil info")
+    with yt_dlp.YoutubeDL(options) as ydl:
+        info = ydl.extract_info(
+            url,
+            download=False
+        )
+    print("YT-DLP: extract selesai")
+
+    subtitles = info.get("subtitles", {})
+
+    return {
+        "info": info,
+        "languages": list(subtitles.keys()),
+    }
 
 def extract_subtitle(url, language="en"):
     with tempfile.TemporaryDirectory() as temp_dir:
@@ -23,6 +44,7 @@ def extract_subtitle(url, language="en"):
             "no_warnings": True,
         }
 
+        print("YT-DLP: mulai ekstrak")
         with yt_dlp.YoutubeDL(options) as ydl:
             info = ydl.extract_info(
                 url, 
@@ -30,6 +52,7 @@ def extract_subtitle(url, language="en"):
                 )
 
         subtitle_file = None
+        print("YT-DLP: ekstrak selesai")
 
         for filename in os.listdir(temp_dir):
             if filename.endswith(".vtt"):
