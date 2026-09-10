@@ -6,7 +6,7 @@ body {
     margin: 0;
     min-height: 100vh;
     font-family: Arial, Helvetica, sans-serif;
-    background: #111;
+    background: #f4f5f3;
     color: #fff;
 }
 
@@ -24,6 +24,7 @@ body {
 .hero h1 {
     margin-bottom: 10px;
     font-size: 42px;
+    color: #111;
 }
 
 .hero p {
@@ -55,8 +56,8 @@ select {
     padding: 13px 15px;
     border:  1px solid #333;
     border-radius: 8px;
-    background: #111;
-    color: white;
+    background: #f4f5f3;
+    color: rgb(0, 0, 0);
     outline: white;
 }
 
@@ -96,6 +97,71 @@ button:hover {
     align-items: center;
     justify-content: space-between;
     margin-bottom: 15px;
+}
+
+.words {
+    height: 40px;
+    overflow: hidden;
+    position: relative;
+}
+
+.word {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    transform: translateY(100%);
+    animation: wordAnimation 8s infinite;
+    display: block;
+    height: 40px;
+    padding-left: 6px;
+    font-weight: bold;
+    color: #ac1313;
+}
+
+.word:nth-child(1){
+    animation-delay: 0s;
+}
+.word:nth-child(2){
+    animation-delay: 2s;
+}
+.word:nth-child(3){
+    animation-delay: 4s;
+}
+.word:nth-child(4){
+    animation-delay: 6s;
+}
+
+@keyframes wordAnimation {
+     /* berada di bawah */
+    0% {
+        transform: translateY(100%);
+    }
+
+    /* masuk dari bawah */
+    5% {
+        transform: translateY(0);
+    }
+
+    /* diam */
+    20% {
+        transform: translateY(0);
+    }
+
+    /* keluar ke atas */
+    25% {
+        transform: translateY(-100%);
+    }
+
+    /* kembali ke bawah secara instan */
+    25.01% {
+        transform: translateY(100%);
+    }
+
+    /* tunggu giliran */
+    100% {
+        transform: translateY(100%);
+    }
 }
 
 #lyrics {
