@@ -3,6 +3,7 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
 
+from django.shortcuts import render
 from .services.parser import parse_vtt
 from .services.normalizer import normalize_lyrics
 from .services.lrc import generate_lrc
@@ -11,6 +12,9 @@ from .services.youtube import(
     extract_subtitle_data,
     get_manual_subtitles,
 )
+
+def home(request):
+    return render(request, "extractor/index.html")
 
 @csrf_exempt
 @api_view(["POST"])

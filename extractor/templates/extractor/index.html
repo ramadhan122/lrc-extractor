@@ -1,0 +1,83 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>YouTube Lyrics Extractor</title>
+
+    <link
+        rel="stylesheet"
+        href="{% static 'extractor/style.css' %}"
+    >
+</head>
+
+<body>
+
+    <main class="container">
+
+        <section class="hero">
+            <h1>YouTube Lyrics Extractor</h1>
+            <p>Extract timestamped lyrics from YouTube captions.</p>
+        </section>
+
+        <section class="card">
+
+            <label for="youtube-url">
+                YouTube URL
+            </label>
+
+            <div class="url-row">
+                <input
+                    type="url"
+                    id="youtube-url"
+                    placeholder="https://www.youtube.com/watch?v=..."
+                >
+
+                <button id="check-btn">
+                    Check
+                </button>
+            </div>
+
+            <div id="video-info" class="video-info hidden">
+                <h2 id="video-title"></h2>
+            </div>
+
+            <div id="language-section" class="hidden">
+
+                <label for="language">
+                    Language
+                </label>
+
+                <select id="language"></select>
+
+                <button id="extract-btn">
+                    Extract Lyrics
+                </button>
+
+            </div>
+
+            <div id="status"></div>
+
+        </section>
+
+        <section id="result" class="card hidden">
+
+            <div class="result-header">
+                <h2>Lyrics</h2>
+
+                <button id="download-btn">
+                    Download .lrc
+                </button>
+            </div>
+
+            <pre id="lyrics"></pre>
+
+        </section>
+
+    </main>
+
+<script src="{% static 'extractor/app.js' %}"></script>
+</body>
+</html>

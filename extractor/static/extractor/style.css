@@ -1,0 +1,139 @@
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    min-height: 100vh;
+    font-family: Arial, Helvetica, sans-serif;
+    background: #111;
+    color: #fff;
+}
+
+.container {
+    width:  min(900px, 92%);
+    margin: 0 auto;
+    padding: 80px 0;
+}
+
+.hero {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.hero h1 {
+    margin-bottom: 10px;
+    font-size: 42px;
+}
+
+.hero p {
+    color: #999;
+}
+
+.card {
+    background: #1b1b1b;
+    border: 1px solid #292929;
+    border-radius: 16px;
+    padding: 24px;
+    margin-bottom: 20px;
+}
+
+label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: bold;
+}
+
+.url-row {
+    display: flex;
+    gap: 10px;
+}
+
+input,
+select {
+    width: 100%;
+    padding: 13px 15px;
+    border:  1px solid #333;
+    border-radius: 8px;
+    background: #111;
+    color: white;
+    outline: white;
+}
+
+button {
+    padding:  13px 20px;
+    border: none;
+    border-radius: 8px;
+    background: white;
+    color: black;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+button:hover {
+    opacity: 0.85;
+}
+
+#language-section {
+    margin-top: 20px;
+}
+
+#extract-btn {
+    margin-top: 12px;
+    width: 100%;
+}
+
+.video-info {
+    margin-top: 20px;
+}
+
+.video-info h2 {
+    font-size: 18px;
+}
+
+.result-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 15px;
+}
+
+#lyrics {
+    margin: 0;
+    padding: 20px;
+    background: #111;
+    border-radius: 10px;
+    white-space: pre-wrap;
+    line-height: 1.8;
+
+    overflow-x: auto;
+}
+
+.hidden {
+    display: none;
+}
+
+#status {
+    margin-top: 15px;
+    color: #aaa;
+}
+
+@media (max-width: 600px) {
+    .container {
+        padding: 40px 0;
+    }
+
+    .hero h1 {
+        font-size: 30px;
+    }
+
+    .url-row {
+        flex-direction: column;
+    }
+
+    .result-header {
+        gap: 10px;
+        align-items: stretch;
+        flex-direction: column;
+    }
+}
