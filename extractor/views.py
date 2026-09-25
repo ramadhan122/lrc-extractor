@@ -12,6 +12,7 @@ from .services.youtube import(
     extract_subtitle_data,
     get_manual_subtitles,
 )
+from .services.summarizer import summarize_lyrics
 
 def home(request):
     return render(request, "extractor/index.html")
@@ -99,6 +100,38 @@ def extract_lyrics(request):
 
         return Response(
             {"error": str(e)},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+@csrf_exempt
+@api_view(["POST"])
+def summarize_lyrics_api(request):
+    lyrics = request.data.get("lyrics")
+
+    if not lyrics:
+        return Response(
+            {
+                "error": "Lyrics are required",
+                "code": "MISSING_LYRICS",
+            },
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    try:
+        summary = summarize_lyrics(lyrics)
+
+        return Response({
+            "summary": summary,
+        })
+
+    except Exception as e:
+        print("ERROR:", repr(e))
+
+        return Response(
+            {
+                "error": "Failed to summarize lyrics",
+                "code": "SUMMARIZATION_ERROR",
+            },
             status=status.HTTP_400_BAD_REQUEST,
         )
     
