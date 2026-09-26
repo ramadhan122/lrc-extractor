@@ -170,6 +170,24 @@ button:hover {
     }
 }
 
+#summary {
+    margin: 0;
+    padding: 20px;
+    background: #111;
+    border: 1px solid #292929;
+    border-radius: 10px;
+
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+
+    line-height: 1.7;
+
+    width: 100%;
+    max-width: 100%;
+    overflow-wrap: anywhere;
+}
+
 #lyrics {
     margin: 0;
     padding: 20px;

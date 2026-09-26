@@ -68,18 +68,35 @@
         </section>
 
         <section id="result" class="card hidden">
+        <div class="result-header">
+            <h2>Lyrics</h2>
 
-            <div class="result-header">
-                <h2>Lyrics</h2>
+            <div class="result-actions">
+
+                <button id="summarize-btn">
+                    Ringkas Lirik
+                </button>
 
                 <button id="download-btn">
                     Download .lrc
                 </button>
+
             </div>
+        </div>
 
-            <pre id="lyrics"></pre>
+        <pre id="lyrics"></pre>
 
-        </section>
+        <div
+            id="summary-section"
+            class="summary-section hidden"
+        >
+
+            <h3>Ringkasan</h3>
+
+            <pre id="summary"></pre>
+
+        </div>
+    </section>
 
     </main>
 

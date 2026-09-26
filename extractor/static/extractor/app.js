@@ -16,6 +16,9 @@ const statusText = document.getElementById("status");
 const result = document.getElementById("result");
 const lyrics = document.getElementById("lyrics");
 const downloadBtn = document.getElementById("download-btn");
+const summarizeBtn = document.getElementById("summarize-btn");
+const summarySection = document.getElementById("summary-section");
+const summary = document.getElementById("summary");
 
 let currentLrc = "";
 
@@ -157,6 +160,48 @@ extractBtn.addEventListener("click", async () => {
 
 });
 
+//summarize lyrics
+summarizeBtn.addEventListener("click", async () => {
+    if (!currentLrc) {
+        return;
+    }
+    setStatus("menganalisis lirik...");
+
+    summarySection.classList.add("hidden");
+    summarizeBtn.disabled = true;
+
+    try {
+        const response = await fetch(
+            `${API_BASE}/summarize/`,
+            {
+                method: "POST",
+                headers: {
+                    "Conteny-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    lyrics: currentLrc
+                })
+            }
+        );
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            throw new Error(
+                data.error || "failed to summarize lyrics."
+            );
+        }
+
+        summary.textContent = data.summary;
+        summarySection.classList.remove("hidden");
+
+        setStatus("ringkasan berhasil dibuat.");
+    } catch (error) {
+        setStatus(error.message);
+    } finally {
+        summarizeBtn.disabled = false;
+    }
+});
 
 // ==========================
 // DOWNLOAD LRC
@@ -195,4 +240,16 @@ downloadBtn.addEventListener("click", () => {
 
 function setStatus(message) {
     statusText.textContent = message;
+}
+
+console.log("Lyrivo app.js loaded");
+
+if (summarizeBtn) {
+    console.log("Summarize button found");
+
+    summarizeBtn.addEventListener("click", () => {
+        console.log("RINGKAS LIRIK DIKLIK");
+    });
+} else {
+    console.log("Summarize button NOT found");
 }

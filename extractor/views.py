@@ -1,3 +1,5 @@
+import json
+from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
@@ -104,35 +106,64 @@ def extract_lyrics(request):
         )
 
 @csrf_exempt
-@api_view(["POST"])
 def summarize_lyrics_api(request):
-    lyrics = request.data.get("lyrics")
+
+    if request.method != "POST":
+        return JsonResponse(
+            {
+                "error": "Only POST method is allowed",
+                "code": "METHOD_NOT_ALLOWED",
+            },
+            status=405,
+        )
+
+    try:
+        data = json.loads(request.body)
+
+    except json.JSONDecodeError:
+
+        return JsonResponse(
+            {
+                "error": "Invalid JSON",
+                "code": "INVALID_JSON",
+            },
+            status=400,
+        )
+
+    lyrics = data.get("lyrics")
 
     if not lyrics:
-        return Response(
+        return JsonResponse(
             {
                 "error": "Lyrics are required",
                 "code": "MISSING_LYRICS",
             },
-            status=status.HTTP_400_BAD_REQUEST,
+            status=400,
         )
 
     try:
+
+        print("SUMMARIZE: menerima lirik")
+        print("SUMMARIZE: jumlah karakter:", len(lyrics))
+
         summary = summarize_lyrics(lyrics)
 
-        return Response({
+        print("SUMMARIZE: Gemini berhasil")
+
+        return JsonResponse({
             "summary": summary,
         })
 
     except Exception as e:
-        print("ERROR:", repr(e))
 
-        return Response(
+        print("SUMMARIZE ERROR:", repr(e))
+
+        return JsonResponse(
             {
                 "error": "Failed to summarize lyrics",
                 "code": "SUMMARIZATION_ERROR",
             },
-            status=status.HTTP_400_BAD_REQUEST,
+            status=400,
         )
     
 @csrf_exempt
