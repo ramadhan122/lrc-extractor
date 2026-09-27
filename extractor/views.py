@@ -205,8 +205,8 @@ def available_languages(request):
 
         return Response(
             {
-            "error": "Gagal mendapatkan informasi video",
-            "error": "YOUTUBE_ERROR",
+                "error": "Video tidak dapat diakses. Pastikan video bersifat publik atau unlisted dan caption tersedia.",
+                "code": "YOUTUBE_ERROR",
             },
             status=status.HTTP_400_BAD_REQUEST,
-        ),
+        )
