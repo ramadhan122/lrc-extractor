@@ -5,6 +5,8 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
 
+import hashlib
+from .models import SummaryCache
 from django.shortcuts import render
 from .services.parser import parse_vtt
 from .services.normalizer import normalize_lyrics
@@ -121,7 +123,6 @@ def summarize_lyrics_api(request):
         data = json.loads(request.body)
 
     except json.JSONDecodeError:
-
         return JsonResponse(
             {
                 "error": "Invalid JSON",
@@ -141,17 +142,45 @@ def summarize_lyrics_api(request):
             status=400,
         )
 
-    try:
+    # Buat hash berdasarkan isi lirik
+    lyrics_hash = hashlib.sha256(
+        lyrics.strip().encode("utf-8")
+    ).hexdigest()
 
+    # Cek cache
+    cached = SummaryCache.objects.filter(
+        lyrics_hash=lyrics_hash
+    ).first()
+
+    if cached:
+        print("SUMMARIZE: menggunakan cache")
+
+        return JsonResponse({
+            "summary": cached.summary,
+            "cached": True,
+        })
+
+    try:
         print("SUMMARIZE: menerima lirik")
         print("SUMMARIZE: jumlah karakter:", len(lyrics))
+        print("SUMMARIZE: cache tidak ditemukan")
+        print("SUMMARIZE: memanggil Gemini")
 
         summary = summarize_lyrics(lyrics)
 
         print("SUMMARIZE: Gemini berhasil")
 
+        # Simpan hasil ke database
+        SummaryCache.objects.create(
+            lyrics_hash=lyrics_hash,
+            summary=summary,
+        )
+
+        print("SUMMARIZE: hasil disimpan ke cache")
+
         return JsonResponse({
             "summary": summary,
+            "cached": False,
         })
 
     except Exception as e:
@@ -165,7 +194,7 @@ def summarize_lyrics_api(request):
             },
             status=400,
         )
-    
+
 @csrf_exempt
 @api_view(["POST"])
 def available_languages(request):
