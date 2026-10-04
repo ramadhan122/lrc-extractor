@@ -4,6 +4,8 @@ from django.views.decorators.csrf import csrf_exempt
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
+import time
+import re
 
 import hashlib
 from .models import SummaryCache
@@ -107,6 +109,49 @@ def extract_lyrics(request):
             status=status.HTTP_400_BAD_REQUEST,
         )
 
+def clean_summary(summary):
+    # Hapus bold / italic Markdown
+    summary = re.sub(r"\*\*(.*?)\*\*", r"\1", summary)
+    summary = re.sub(r"__(.*?)__", r"\1", summary)
+    summary = re.sub(r"\*(.*?)\*", r"\1", summary)
+    summary = re.sub(r"_(.*?)_", r"\1", summary)
+    # Hapus heading Markdown
+    summary = re.sub(
+        r"^\s*#{1,6}\s*",
+        "",
+        summary,
+        flags=re.MULTILINE,
+    )
+
+    # Ubah bullet Markdown menjadi bullet biasa
+    summary = re.sub(
+        r"^\s*[-*+]\s+",
+        "• ",
+        summary,
+        flags=re.MULTILINE,
+    )
+
+    # Hapus backtick
+    summary = summary.replace("`", "")
+
+    # Ganti semicolon dengan titik
+    summary = summary.replace(";", ".")
+
+    # Rapikan spasi di akhir setiap baris
+    summary = "\n".join(
+        line.rstrip()
+        for line in summary.splitlines()
+    )
+
+    # Maksimal satu baris kosong antar paragraf
+    summary = re.sub(
+        r"\n{3,}",
+        "\n\n",
+        summary,
+    )
+
+    return summary.strip()
+
 @csrf_exempt
 def summarize_lyrics_api(request):
 
@@ -160,40 +205,79 @@ def summarize_lyrics_api(request):
             "cached": True,
         })
 
-    try:
-        print("SUMMARIZE: menerima lirik")
-        print("SUMMARIZE: jumlah karakter:", len(lyrics))
-        print("SUMMARIZE: cache tidak ditemukan")
-        print("SUMMARIZE: memanggil Gemini")
+    print("SUMMARIZE: menerima lirik")
+    print("SUMMARIZE: jumlah karakter:", len(lyrics))
+    print("SUMMARIZE: cache tidak ditemukan")
 
-        summary = summarize_lyrics(lyrics)
+    # Retry Gemini jika mengalami 503
+    max_retries = 3
 
-        print("SUMMARIZE: Gemini berhasil")
+    for attempt in range(max_retries):
+        try:
+            print(
+                f"SUMMARIZE: memanggil Gemini "
+                f"(percobaan {attempt + 1}/{max_retries})"
+            )
 
-        # Simpan hasil ke database
-        SummaryCache.objects.create(
-            lyrics_hash=lyrics_hash,
-            summary=summary,
-        )
+            summary = summarize_lyrics(lyrics)
+            # bersihkan format markdown dari gemini
+            summary = clean_summary(summary)
 
-        print("SUMMARIZE: hasil disimpan ke cache")
+            print("SUMMARIZE: Gemini berhasil")
 
-        return JsonResponse({
-            "summary": summary,
-            "cached": False,
-        })
+            # Simpan hasil ke database
+            SummaryCache.objects.create(
+                lyrics_hash=lyrics_hash,
+                summary=summary,
+            )
 
-    except Exception as e:
+            print("SUMMARIZE: hasil disimpan ke cache")
 
-        print("SUMMARIZE ERROR:", repr(e))
+            return JsonResponse({
+                "summary": summary,
+                "cached": False,
+            })
 
-        return JsonResponse(
-            {
-                "error": "Failed to summarize lyrics",
-                "code": "SUMMARIZATION_ERROR",
-            },
-            status=400,
-        )
+        except Exception as e:
+
+            error_text = repr(e)
+
+            print("SUMMARIZE ERROR:", error_text)
+
+            # Cek apakah error berasal dari server Gemini (503)
+            if "503" in error_text or "UNAVAILABLE" in error_text:
+
+                if attempt < max_retries - 1:
+                    wait_time = 2 ** (attempt + 1)
+
+                    print(
+                        f"SUMMARIZE: Gemini sedang sibuk. "
+                        f"Retry dalam {wait_time} detik..."
+                    )
+
+                    time.sleep(wait_time)
+                    continue
+
+                # Semua retry gagal
+                return JsonResponse(
+                    {
+                        "error": (
+                            "Layanan AI sedang sibuk. "
+                            "Silakan coba lagi beberapa saat."
+                        ),
+                        "code": "AI_SERVICE_UNAVAILABLE",
+                    },
+                    status=503,
+                )
+
+            # Error selain 503
+            return JsonResponse(
+                {
+                    "error": "Failed to summarize lyrics",
+                    "code": "SUMMARIZATION_ERROR",
+                },
+                status=500,
+            )
 
 @csrf_exempt
 @api_view(["POST"])

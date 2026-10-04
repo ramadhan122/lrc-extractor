@@ -31,6 +31,11 @@ Sebutkan tema utama lirik secara singkat.
 Suasana:
 Jelaskan suasana atau emosi yang terasa dari lirik.
 
+Gunakan tanda baca yang sederhana dan natural.
+Hindari penggunaan titik koma (;).
+Gunakan titik atau koma sebagai gantinya.
+Jangan gunakan Markdown seperti **, *, #, atau `.
+
 Lirik:
 {lyrics}
 """,
